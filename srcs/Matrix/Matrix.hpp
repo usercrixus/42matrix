@@ -6,29 +6,49 @@ template <typename T>
 class Matrix : public std::vector<VectorAlgebra<T>>
 {
 private:
+    bool validate();
+    bool valid = false;
 public:
-	using std::vector<VectorAlgebra<T>>::vector;
-	static Matrix<T> linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio);
+    using std::vector<VectorAlgebra<T>>::vector;
+
+    static Matrix<T> linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio);
 
     Matrix<T> transpose() const;
+    T trace();
+    bool isSquare();
 
     Matrix<T> operator*(const Matrix<T> &other) const;
-	VectorAlgebra<T> operator*(const VectorAlgebra<T> &vec) const;
+    VectorAlgebra<T> operator*(const VectorAlgebra<T> &vec) const;
 };
 
 template <typename T>
-inline Matrix<T> Matrix<T>::linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio)
+bool Matrix<T>::validate()
 {
-	if (m1.size() != m2.size())
-		throw std::invalid_argument("Matrix row count mismatch");
+    if (this->size() == 0)
+        return true;
 
-	Matrix<T> result;
-	result.reserve(m1.size());
+    size_t target = (*this)[0].size();
+    for (const auto &row : source)
+    {
+        if (row.size() != target)
+            return false;
+    }
+    return true;
+}
 
-	for (size_t i = 0; i < m1.size(); ++i)
-		result.push_back(VectorAlgebra<T>::linearInterpolation(m1[i], m2[i], ratio));
+template <typename T>
+Matrix<T> Matrix<T>::linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio)
+{
+    if (m1.size() != m2.size())
+        throw std::invalid_argument("Matrix row count mismatch");
 
-	return result;
+    Matrix<T> result;
+    result.reserve(m1.size());
+
+    for (size_t i = 0; i < m1.size(); ++i)
+        result.push_back(VectorAlgebra<T>::linearInterpolation(m1[i], m2[i], ratio));
+
+    return result;
 }
 
 template <typename T>
@@ -55,6 +75,34 @@ Matrix<T> Matrix<T>::transpose() const
     return result;
 }
 
+template <typename T>
+T Matrix<T>::trace()
+{
+    if (!isSquare())
+        throw std::logic_error("Cannot take trace of this matrix. It is not square");
+    if (this->empty())
+        throw std::logic_error("Cannot take trace of an empty matrix.");
+    T result = 0;
+    size_t offset = 0;
+    for (const auto &row : *this)
+    {
+        result += row[offset];
+        offset++;
+    }
+    return result;
+}
+
+template <typename T>
+bool Matrix<T>::isSquare()
+{
+    size_t targetSize = this->size();
+    for (const auto &row : *this)
+    {
+        if (row.size() != targetSize)
+            return false;
+    }
+    return true;
+}
 
 template <typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T> &other) const
@@ -95,15 +143,14 @@ VectorAlgebra<T> Matrix<T>::operator*(const VectorAlgebra<T> &vec) const
     return result;
 }
 
-
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const Matrix<T> &matrix)
 {
-	os << "[\n";
-	for (const auto &row : matrix)
-	{
-		os << "  " << row << "\n";
-	}
-	os << "]";
-	return os;
+    os << "[\n";
+    for (const auto &row : matrix)
+    {
+        os << "  " << row << "\n";
+    }
+    os << "]";
+    return os;
 }

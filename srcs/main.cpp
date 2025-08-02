@@ -160,5 +160,20 @@ int main(int argc, char const *argv[])
 		std::cerr << e.what() << '\n';
 	}
 
+	try
+	{
+		std::cout << "---- Exercice 08 ----" << std::endl;
+		Matrix<float> m1 = {{1, 0}, {0, 1}};
+		Matrix<float> m2 = {{2, -5, 0}, {4, 3, 7}, {-2, 3, 4}};
+		Matrix<float> m3 = {{-2, -8, 4}, {1, -23, 4}, {0, 6, 4}};
+		std::cout << m1.trace() << std::endl;
+		std::cout << m2.trace() << std::endl;
+		std::cout << m3.trace() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
 	return 0;
 }

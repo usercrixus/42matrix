@@ -2,13 +2,13 @@ OBJ = \
 	srcs/main.o
 
 HDR = \
+	srcs/Matrix/Matrix.hpp \
 	srcs/Matrix/VectorAlgebra.hpp
-	srcs/Matrix/Matrix.hpp
 
 all: tester
 
-tester: $(OBJ) $(HDR)
+tester: $(OBJ)
 	c++ $(OBJ) -o $@
 
-%.o: %.cpp
-	c++ -c $^ -o $@
+%.o: %.cpp $(HDR)
+	c++ -c $< -o $@
