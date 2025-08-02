@@ -3,32 +3,35 @@
 #include "VectorAlgebra.hpp"
 
 template <typename T>
-class Matrix : public std::vector<VectorAlgebra<T>>
+class Matrix : private std::vector<VectorAlgebra<T>>
 {
 private:
-    bool validate();
-    bool valid = false;
-public:
-    using std::vector<VectorAlgebra<T>>::vector;
+    bool isValidate();
+    bool isSquare();
 
+public:
+    using std::vector<VectorAlgebra<T>>::operator[];
+    using std::vector<VectorAlgebra<T>>::begin;
+    using std::vector<VectorAlgebra<T>>::end;
+
+    static Matrix<T> from(const std::vector<VectorAlgebra<T>> &rows);
     static Matrix<T> linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio);
 
     Matrix<T> transpose() const;
     T trace();
-    bool isSquare();
 
     Matrix<T> operator*(const Matrix<T> &other) const;
     VectorAlgebra<T> operator*(const VectorAlgebra<T> &vec) const;
 };
 
 template <typename T>
-bool Matrix<T>::validate()
+bool Matrix<T>::isValidate()
 {
     if (this->size() == 0)
         return true;
 
     size_t target = (*this)[0].size();
-    for (const auto &row : source)
+    for (const auto &row : *this)
     {
         if (row.size() != target)
             return false;
@@ -102,6 +105,18 @@ bool Matrix<T>::isSquare()
             return false;
     }
     return true;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::from(const std::vector<VectorAlgebra<T>> &rows)
+{
+    Matrix<T> result;
+    result.insert(result.end(), rows.begin(), rows.end());
+
+    if (!result.isValidate())
+        throw std::invalid_argument("All rows must be the same size to form a valid matrix");
+
+    return result;
 }
 
 template <typename T>

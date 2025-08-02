@@ -46,7 +46,10 @@ int main(int argc, char const *argv[])
 		std::cout << VectorAlgebra<float>::linearInterpolation({0}, {1}, 0.5) << std::endl;
 		std::cout << VectorAlgebra<float>::linearInterpolation({21}, {42}, 0.3) << std::endl;
 		std::cout << VectorAlgebra<float>::linearInterpolation({2, 1}, {4, 2}, 0.3) << std::endl;
-		std::cout << Matrix<float>::linearInterpolation({{2, 1}, {3, 4}}, {{20, 10}, {30, 40}}, 0.5) << std::endl;
+		std::cout << Matrix<float>::linearInterpolation(
+						 Matrix<float>::from({{2, 1}, {3, 4}}),
+						 Matrix<float>::from({{20, 10}, {30, 40}}), 0.5)
+				  << std::endl;
 	}
 	catch (const std::exception &e)
 	{
@@ -140,12 +143,12 @@ int main(int argc, char const *argv[])
 	try
 	{
 		std::cout << "---- Exercice 07 ----" << std::endl;
-		Matrix<float> m1 = {{1, 0}, {0, 1}};
+		Matrix<float> m1 = Matrix<float>::from({{1, 0}, {0, 1}});
 		VectorAlgebra<float> v1 = {4, 2};
-		Matrix<float> m2 = {{2, 0}, {0, 2}};
-		Matrix<float> m3 = {{2, -2}, {-2, 2}};
-		Matrix<float> m4 = {{2, 1}, {4, 2}};
-		Matrix<float> m5 = {{3, -5}, {6, 8}};
+		Matrix<float> m2 = Matrix<float>::from({{2, 0}, {0, 2}});
+		Matrix<float> m3 = Matrix<float>::from({{2, -2}, {-2, 2}});
+		Matrix<float> m4 = Matrix<float>::from({{2, 1}, {4, 2}});
+		Matrix<float> m5 = Matrix<float>::from({{3, -5}, {6, 8}});
 		VectorAlgebra<float> v5 = {4, 2, -3};
 		VectorAlgebra<float> v6 = {-2, -5, 16};
 		std::cout << m1 * v1 << std::endl;
@@ -163,12 +166,24 @@ int main(int argc, char const *argv[])
 	try
 	{
 		std::cout << "---- Exercice 08 ----" << std::endl;
-		Matrix<float> m1 = {{1, 0}, {0, 1}};
-		Matrix<float> m2 = {{2, -5, 0}, {4, 3, 7}, {-2, 3, 4}};
-		Matrix<float> m3 = {{-2, -8, 4}, {1, -23, 4}, {0, 6, 4}};
+		Matrix<float> m1 = Matrix<float>::from({{1, 0}, {0, 1}});
+		Matrix<float> m2 = Matrix<float>::from({{2, -5, 0}, {4, 3, 7}, {-2, 3, 4}});
+		Matrix<float> m3 = Matrix<float>::from({{-2, -8, 4}, {1, -23, 4}, {0, 6, 4}});
 		std::cout << m1.trace() << std::endl;
 		std::cout << m2.trace() << std::endl;
 		std::cout << m3.trace() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		std::cout << "---- Exercice 09 ----" << std::endl;
+		Matrix<float> m1 = Matrix<float>::from({{-2, -8, 4}, {1, -23, 4}, {0, 6, 4}});
+		std::cout << m1 << std::endl;
+		std::cout << m1.transpose() << std::endl;
 	}
 	catch (const std::exception &e)
 	{
