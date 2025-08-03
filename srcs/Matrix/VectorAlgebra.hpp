@@ -29,6 +29,9 @@ public:
 	VectorAlgebra<T> operator*(const VectorAlgebra<T> &other) const;
 	template <typename Scalar>
 	VectorAlgebra<T> operator*(const Scalar) const;
+	VectorAlgebra<T> operator/(const VectorAlgebra<T> &other) const;
+	template <typename Scalar>
+	VectorAlgebra<T> operator/(Scalar value) const;
 };
 
 template <typename T>
@@ -80,7 +83,7 @@ VectorAlgebra<T> VectorAlgebra<T>::crossProduct(const VectorAlgebra<T> &vect1, c
 {
 	if (vect1.size() != 3 || vect2.size() != 3)
 		throw std::invalid_argument("Cross product is only defined for 3D vectors");
-		
+
 	return {vect1[1] * vect2[2] - vect1[2] * vect2[1], vect1[2] * vect2[0] - vect1[0] * vect2[2], vect1[0] * vect2[1] - vect1[1] * vect2[0]};
 }
 
@@ -186,7 +189,7 @@ VectorAlgebra<T> VectorAlgebra<T>::operator*(Scalar value) const
 	result.reserve(this->size());
 
 	for (size_t i = 0; i < this->size(); ++i)
-		result.push_back(static_cast<T>((*this)[i] * value));
+		result.push_back((*this)[i] * value);
 
 	return result;
 }
@@ -195,6 +198,56 @@ template <typename Scalar, typename T>
 VectorAlgebra<T> operator*(Scalar value, const VectorAlgebra<T> &vec)
 {
 	return vec * value;
+}
+
+template <typename T>
+VectorAlgebra<T> VectorAlgebra<T>::operator/(const VectorAlgebra<T> &other) const
+{
+	if (this->size() != other.size())
+		throw std::invalid_argument("Vector size mismatch");
+
+	VectorAlgebra<T> result;
+	result.reserve(this->size());
+
+	for (size_t i = 0; i < this->size(); ++i)
+	{
+		if (other[i] == 0)
+			throw std::invalid_argument("cant divide by zero");
+				result.push_back((*this)[i] / other[i]);
+	}
+
+	return result;
+}
+
+template <typename T>
+template <typename Scalar>
+VectorAlgebra<T> VectorAlgebra<T>::operator/(Scalar value) const
+{
+	if (value == 0)
+		throw std::invalid_argument("cant divide by zero");
+	VectorAlgebra<T> result;
+	result.reserve(this->size());
+
+	for (size_t i = 0; i < this->size(); ++i)
+		result.push_back((*this)[i] / value);
+
+	return result;
+}
+
+template <typename Scalar, typename T>
+VectorAlgebra<T> operator/(Scalar value, const VectorAlgebra<T> &vec)
+{
+	VectorAlgebra<T> result;
+	result.reserve(vec.size());
+
+	for (size_t i = 0; i < vec.size(); ++i)
+	{
+		if (vec[i] == 0)
+			throw std::invalid_argument("cant divide by zero");
+		result.push_back((value / vec[i]));
+	}
+
+	return result;
 }
 
 template <typename T>

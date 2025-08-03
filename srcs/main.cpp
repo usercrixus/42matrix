@@ -190,5 +190,138 @@ int main(int argc, char const *argv[])
 		std::cerr << e.what() << '\n';
 	}
 
+	try
+	{
+		std::cout << "---- Exercice 10 ----" << std::endl;
+		Matrix<float> m1 = Matrix<float>::from(
+			{{1, 0, 0},
+			 {0, 1, 0},
+			 {0, 0, 1}});
+		Matrix<float> m2 = Matrix<float>::from(
+			{
+				{1, 2},
+				{3, 4},
+			});
+		Matrix<float> m3 = Matrix<float>::from(
+			{
+				{1, 2},
+				{2, 4},
+			});
+		Matrix<float> m4 = Matrix<float>::from(
+			{{8, 5, -2, 4, 28},
+			 {4, 2.5, 20, 4, -4},
+			 {8, 5, 1, 4, 17}});
+		Matrix<float> m5 = Matrix<float>::from(
+			{
+				{0, 1},
+				{1, 0},
+			});
+		std::cout << m1.rowEchelon() << std::endl;
+		std::cout << m2.rowEchelon() << std::endl;
+		std::cout << m3.rowEchelon() << std::endl;
+		std::cout << m4.rowEchelon() << std::endl;
+		std::cout << m5.rowEchelon() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		std::cout << "---- Exercice 11 ----" << std::endl;
+		Matrix<float> m1 = Matrix<float>::from(
+			{
+				{1, -1},
+				{-1, 1},
+			});
+		Matrix<float> m2 = Matrix<float>::from(
+			{{2, 0, 0},
+			 {0, 2, 0},
+			 {0, 0, 2}});
+		Matrix<float> m3 = Matrix<float>::from(
+			{{8, 5, -2},
+			 {4, 7, 20},
+			 {7, 6, 1}});
+
+		Matrix<float> m4 = Matrix<float>::from(
+			{{8, 5, -2, 4},
+			 {4, 2.5, 20, 4},
+			 {8, 5, 1, 4},
+			 {28, -4, 17, 1}});
+
+		std::cout << m1.determinant() << std::endl;
+		std::cout << m2.determinant() << std::endl;
+		std::cout << m3.determinant() << std::endl;
+		std::cout << m4.determinant() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		std::cout << "---- Exercice 12 ----" << std::endl;
+		Matrix<float> m1 = Matrix<float>::from(
+			{
+				{1, 0, 0},
+				{0, 1, 0},
+				{0, 0, 1},
+			});
+		Matrix<float> m2 = Matrix<float>::from(
+			{
+				{2, 0, 0},
+				{0, 2, 0},
+				{0, 0, 2},
+			});
+		Matrix<float> m3 = Matrix<float>::from(
+			{
+				{8, 5, -2},
+				{4, 7, 20},
+				{7, 6, 1},
+			});
+
+		std::cout << m1.invert() << std::endl;
+		std::cout << m2.invert() << std::endl;
+		std::cout << m3.invert() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		std::cout << "---- Exercice 13 ----" << std::endl;
+		Matrix<float> m1 = Matrix<float>::from(
+			{
+				{1, 0, 0},
+				{0, 1, 0},
+				{0, 0, 1},
+			});
+		Matrix<float> m2 = Matrix<float>::from(
+			{
+				{1, 2, 0, 0},
+				{2, 4, 0, 0},
+				{-1, 2, 1, 1},
+			});
+		Matrix<float> m3 = Matrix<float>::from(
+			{
+				{8, 5, -2},
+				{4, 7, 20},
+				{7, 6, 1},
+				{21, 18, 7},
+			});
+
+		std::cout << m1.rank() << std::endl;
+		std::cout << m2.rank() << std::endl;
+		std::cout << m3.rank() << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
 	return 0;
 }
