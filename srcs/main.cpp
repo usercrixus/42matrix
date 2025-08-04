@@ -1,6 +1,7 @@
 #include "Matrix/VectorAlgebra.hpp"
 #include "Matrix/Matrix.hpp"
 #include "iostream"
+#include <complex>
 
 int main(int argc, char const *argv[])
 {
@@ -321,6 +322,91 @@ int main(int argc, char const *argv[])
 	catch (const std::exception &e)
 	{
 		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		std::cout << "---- Exercice 14 ----" << std::endl;
+		float fov = 90.0f;		 // Field of view in degrees
+		float ratio = 16.0f / 9; // Aspect ratio (e.g. 1920 / 1080)
+		float near = 0.1f;		 // The closest distance you can see. 10cm
+		float far = 100.0f;		 // The farthest distance you can see. 100 meters
+		Matrix<float> m1 = Matrix<float>::projection(fov, ratio, near, far);
+		std::cout << m1 << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		std::cout << "---- Exercice 15 (Complex numbers) ----" << std::endl;
+		using Complex = std::complex<float>;
+
+		// ----- Vector Tests -----
+		VectorAlgebra<Complex> v1 = {{1.0f, 2.0f}, {3.0f, -4.0f}};
+		VectorAlgebra<Complex> v2 = {{0.0f, -1.0f}, {1.0f, 1.0f}};
+
+		std::cout << "v1: " << v1 << std::endl;
+		std::cout << "v2: " << v2 << std::endl;
+		std::cout << "v1 + v2: " << v1 + v2 << std::endl;
+		std::cout << "v1 - v2: " << v1 - v2 << std::endl;
+		std::cout << "v1 * v2 (element-wise): " << v1 * v2 << std::endl;
+		std::cout << "v1 * scalar (2.0f + i): " << v1 * Complex(2.0f, 1.0f) << std::endl;
+		std::cout << "dotProduct(v1, v2): " << v1.dotProduct(v2) << std::endl;
+		std::cout << "normEuclidean(v1): " << v1.normEuclidean() << std::endl;
+		std::cout << "normManhattan(v1): " << v1.normManhattan() << std::endl;
+		std::cout << "normSupremum(v1): " << v1.normSupremum() << std::endl;
+		std::cout << "v1 sum: " << v1.sum() << std::endl;
+
+		auto interpolated = VectorAlgebra<Complex>::linearInterpolation(v1, v2, 0.5f);
+		std::cout << "Interpolation v1/v2 @0.5: " << interpolated << std::endl;
+
+		VectorAlgebra<Complex> coef = {{0.5f, 0.0f}, {0.5f, 0.0f}};
+		auto combo = VectorAlgebra<Complex>::linearCombinaison({v1, v2}, coef);
+		std::cout << "Linear combinaison: " << combo << std::endl;
+
+		VectorAlgebra<Complex> v3 = {{1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}};
+		VectorAlgebra<Complex> v4 = {{0.0f, 1.0f}, {1.0f, 0.0f}, {1.0f, -1.0f}};
+		std::cout << "Cross product: " << VectorAlgebra<Complex>::crossProduct(v3, v4) << std::endl;
+
+		// ----- Matrix Tests -----
+		Matrix<Complex> m1 = Matrix<Complex>::from({{{1.0f, 2.0f}, {0.0f, 0.0f}},
+													{{0.0f, 0.0f}, {1.0f, -2.0f}}});
+		VectorAlgebra<Complex> vec = {{1.0f, 1.0f}, {1.0f, -1.0f}};
+
+		std::cout << "\n-- Matrix operations --" << std::endl;
+		std::cout << "Matrix m1:\n"
+				  << m1 << std::endl;
+		std::cout << "Matrix m1 * vec: " << m1 * vec << std::endl;
+		std::cout << "Transpose of m1:\n"
+				  << m1.transpose() << std::endl;
+		std::cout << "Trace of m1: " << m1.trace() << std::endl;
+		std::cout << "Determinant of m1: " << m1.determinant() << std::endl;
+		std::cout << "Rank of m1: " << m1.rank() << std::endl;
+		std::cout << "Inverted m1:\n"
+				  << m1.invert() << std::endl;
+
+		Matrix<Complex> identity = m1.getIdentityMatrix();
+		std::cout << "Identity matrix:\n"
+				  << identity << std::endl;
+		std::cout << "m1 * identity:\n"
+				  << m1 * identity << std::endl;
+
+		auto interpolatedM = Matrix<Complex>::linearInterpolation(m1, identity, 0.5f);
+		std::cout << "Interpolated matrix (m1 vs identity):\n"
+				  << interpolatedM << std::endl;
+
+		// ----- Projection -----
+		std::cout << "\n-- Projection Matrix --" << std::endl;
+		auto proj = Matrix<Complex>::projection(90.0f, 1.0f, 0.1f, 100.0f);
+		std::cout << "Projection matrix (complex context):\n"
+				  << proj << std::endl;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
 	}
 
 	return 0;

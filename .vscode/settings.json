@@ -43,6 +43,8 @@
         "new": "cpp",
         "numbers": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "complex": "cpp",
+        "sstream": "cpp"
     }
 }

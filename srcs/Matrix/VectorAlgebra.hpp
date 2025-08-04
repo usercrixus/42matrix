@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <complex>
 
 template <typename T>
 class VectorAlgebra : public std::vector<T>
@@ -13,13 +14,14 @@ public:
 	// Use base constructor
 	using std::vector<T>::vector;
 
+	using ScalarType = decltype(std::abs(T{}));
 	static VectorAlgebra<T> linearCombinaison(const std::vector<VectorAlgebra<T>> &vects, const VectorAlgebra<T> &coef);
 	static VectorAlgebra<T> linearInterpolation(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2, float ratio);
 	static float angleCos(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2);
 	static VectorAlgebra<T> crossProduct(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2);
-	T normManhattan() const;
-	T normEuclidean() const;
-	T normSupremum() const;
+	ScalarType normManhattan() const;
+	ScalarType normEuclidean() const;
+	ScalarType normSupremum() const;
 
 	T sum();
 	T dotProduct(const VectorAlgebra<T> &other) const;
@@ -68,6 +70,8 @@ VectorAlgebra<T> VectorAlgebra<T>::linearInterpolation(const VectorAlgebra<T> &v
 template <typename T>
 float VectorAlgebra<T>::angleCos(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2)
 {
+	if constexpr (std::is_same<T, std::complex<float>>::value || std::is_same<T, std::complex<double>>::value)
+		throw std::logic_error("angleCos is undefined for complex vectors.");
 	T dot = vect1.dotProduct(vect2);
 	T normA = vect1.normEuclidean();
 	T normB = vect2.normEuclidean();
@@ -88,30 +92,34 @@ VectorAlgebra<T> VectorAlgebra<T>::crossProduct(const VectorAlgebra<T> &vect1, c
 }
 
 template <typename T>
-T VectorAlgebra<T>::normManhattan() const
+typename VectorAlgebra<T>::ScalarType VectorAlgebra<T>::normManhattan() const
 {
-	T sum = 0;
+	typename VectorAlgebra<T>::ScalarType sum = 0;
 	for (const auto &val : *this)
 		sum += std::abs(val);
 	return sum;
 }
 
 template <typename T>
-T VectorAlgebra<T>::normEuclidean() const
+typename VectorAlgebra<T>::ScalarType VectorAlgebra<T>::normEuclidean() const
 {
-	T sum = 0;
+	typename VectorAlgebra<T>::ScalarType sum = 0;
 	for (const auto &val : *this)
-		sum += val * val;
+		sum += std::norm(val);
 	return std::sqrt(sum);
 }
 
 template <typename T>
-T VectorAlgebra<T>::normSupremum() const
+typename VectorAlgebra<T>::ScalarType VectorAlgebra<T>::normSupremum() const
 {
-	T maxVal = 0;
+	typename VectorAlgebra<T>::ScalarType maxAbs = std::abs((*this)[0]);
 	for (const auto &val : *this)
-		maxVal = std::max(maxVal, std::abs(val));
-	return maxVal;
+	{
+		typename VectorAlgebra<T>::ScalarType  magnitude = std::abs(val);
+		if (magnitude > maxAbs)
+			maxAbs = magnitude;
+	}
+	return maxAbs;
 }
 
 template <typename T>
@@ -131,7 +139,12 @@ T VectorAlgebra<T>::dotProduct(const VectorAlgebra<T> &other) const
 
 	T result = 0;
 	for (size_t i = 0; i < this->size(); ++i)
-		result += (*this)[i] * other[i];
+	{
+		if constexpr (std::is_same<T, std::complex<float>>::value || std::is_same<T, std::complex<double>>::value)
+			result += std::conj((*this)[i]) * other[i];
+		else
+			result += (*this)[i] * other[i];
+	}
 
 	return result;
 }
@@ -213,7 +226,7 @@ VectorAlgebra<T> VectorAlgebra<T>::operator/(const VectorAlgebra<T> &other) cons
 	{
 		if (other[i] == 0)
 			throw std::invalid_argument("cant divide by zero");
-				result.push_back((*this)[i] / other[i]);
+		result.push_back((*this)[i] / other[i]);
 	}
 
 	return result;
@@ -223,7 +236,7 @@ template <typename T>
 template <typename Scalar>
 VectorAlgebra<T> VectorAlgebra<T>::operator/(Scalar value) const
 {
-	if (value == 0)
+	if (value == Scalar(0))
 		throw std::invalid_argument("cant divide by zero");
 	VectorAlgebra<T> result;
 	result.reserve(this->size());

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VectorAlgebra.hpp"
+#include <complex>
 
 template <typename T>
 class Matrix : private std::vector<VectorAlgebra<T>>
@@ -16,6 +17,7 @@ public:
 
     static Matrix<T> from(const std::vector<VectorAlgebra<T>> &rows);
     static Matrix<T> linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio);
+    static Matrix<T> projection(float fov, float ratio, float near, float far);
 
     Matrix<T> transpose() const;
     Matrix<T> rowEchelon() const;
@@ -61,6 +63,75 @@ Matrix<T> Matrix<T>::linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m
 }
 
 template <typename T>
+Matrix<T> Matrix<T>::projection(float fov_deg, float aspect_ratio, float near_plane, float far_plane)
+{
+    /*
+      tan(θ) = opposite / adjacent
+      so
+      tan(fov / 2) = half_screen_height / near
+      half_screen_height = near * tan(fov / 2)
+      screen_height = 2 * near * tan(fov / 2)
+      but instead to express a ratio between -1 and 1 we say
+      scale = 2 / screen_height
+      so
+      scale = 2 / (2 * near * tan(fov / 2))
+            = 1 / (near * tan(fov / 2))
+
+      The role of X and Y scale is just to convert angles into [-1, 1] range — so the near value is not needed there anymore.
+      y_scale = 1 / tan(fov / 2)
+      x_scale = 1.0f / (tan(fov / 2) * aspect_ratio);
+
+      for z:
+      near * z_scale + z_translate = 0     → equation (1)
+      far  * z_scale + z_translate = 1     → equation (2)
+      Now subtract (1) from (2):
+      (far - near) * z_scale = 1
+      z_scale = 1 / (far - near)
+      Plug into (1):
+      near * (1 / (far - near)) + z_translate = 0
+      z_translate = - near / (far - near)
+      That’s what OpenGL used before
+      But modern perspective projection includes a non-linear depth curve to make closer objects more precise in depth testing.
+      The general form in OpenGL (for reversed Z and more precision) is often:
+      z_scale     = far / (far - near)
+      z_translate = - (far * near) / (far - near)
+      This introduces nonlinearity, making:
+      Depth buffer more precise near the camera
+      Still gives 0 for near and 1 for far
+    */
+    float fov_rad = fov_deg * M_PI / 180.0f;       // Convert FOV to radians
+    float tan_half_fov = std::tan(fov_rad / 2.0f); // tan(fov / 2)
+
+    float x_scale = 1.0f / (tan_half_fov * aspect_ratio); // Horizontal FOV scaling (X axis). If X is far away, scale it less. If it's close, scale it more. Use FOV to compute the right factor.
+    float y_scale = 1.0f / tan_half_fov;                  // Vertical FOV scaling (Y axis). If Y is far away, scale it less. If it's close, scale it more. Use FOV to compute the right factor.
+
+    float z_range = far_plane - near_plane;                  // Depth range
+    float z_scale = far_plane / z_range;                     // Z axis depth scale
+    float z_translate = -(far_plane * near_plane) / z_range; // Shifts the z values to map the range [near, far] into [0, 1], while preserving depth precision
+
+    /*
+      We multiply a 4D vector {x, y, z, w} by this matrix.
+      This matrix applies the perspective projection.
+      After the multiplication, OpenGL will divide all x', y', z' by w' (called the perspective divide).
+      Here's what the math looks like (AFTER transpose, i.e. real order used):
+        x' = x * x_scale
+        y' = y * y_scale
+        z' = z * z_scale + w * 1
+        w' = z * z_translate
+      Then:
+        x_ndc = x' / w'
+        y_ndc = y' / w'
+        z_ndc = z' / w'
+      This is how 3D becomes screen coordinates!
+    */
+    Matrix<T> perspective = Matrix<T>::from({{x_scale, 0, 0, 0},
+                                             {0, y_scale, 0, 0},
+                                             {0, 0, z_scale, z_translate},
+                                             {0, 0, 1, 0}});
+    return perspective.transpose();
+}
+
+template <typename T>
 Matrix<T> Matrix<T>::transpose() const
 {
     if (this->empty())
@@ -80,7 +151,6 @@ Matrix<T> Matrix<T>::transpose() const
             newRow.push_back((*this)[y][x]);
         result.push_back(newRow);
     }
-
     return result;
 }
 
@@ -92,7 +162,7 @@ Matrix<T> Matrix<T>::getIdentityMatrix() const
     for (size_t y = 0; y < this->size(); y++)
     {
         result.emplace_back(this->size(), T(0));
-        result[y][y] = 1;
+        result[y][y] = T(1);
     }
     return result;
 }
@@ -100,7 +170,8 @@ Matrix<T> Matrix<T>::getIdentityMatrix() const
 template <typename T>
 unsigned int Matrix<T>::rank() const
 {
-    auto isNotZero = [](T t) { return t != T(0); };
+    auto isNotZero = [](T t)
+    { return t != T(0); };
 
     unsigned int rank = 0;
     Matrix<T> buffer = this->rowEchelon();
@@ -122,18 +193,18 @@ Matrix<T> Matrix<T>::rowEchelon() const
     {
         for (size_t x = 0; x < buffer[y].size(); x++)
         {
-            if (buffer[y][x] == 0)
+            if (buffer[y][x] == T(0))
             {
                 for (size_t yp = y + 1; yp < buffer.size(); yp++)
                 {
-                    if (buffer[yp][x] != 0)
+                    if (buffer[yp][x] != T(0))
                     {
                         std::swap(buffer[yp], buffer[y]);
                         break;
                     }
                 }
             }
-            if (buffer[y][x] != 0)
+            if (buffer[y][x] != T(0))
             {
                 buffer[y] = buffer[y] / buffer[y][x];
                 for (size_t yp = 0; yp < buffer.size(); yp++)
@@ -156,11 +227,11 @@ Matrix<T> Matrix<T>::rowEchelonNormalize(int &swapCount) const
     {
         for (size_t x = 0; x < buffer[y].size(); x++)
         {
-            if (buffer[y][x] == 0)
+            if (buffer[y][x] == T(0))
             {
                 for (size_t yp = y + 1; yp < buffer.size(); yp++)
                 {
-                    if (buffer[yp][x] != 0)
+                    if (buffer[yp][x] != T(0))
                     {
                         std::swap(buffer[yp], buffer[y]);
                         swapCount++;
@@ -168,7 +239,7 @@ Matrix<T> Matrix<T>::rowEchelonNormalize(int &swapCount) const
                     }
                 }
             }
-            if (buffer[y][x] != 0)
+            if (buffer[y][x] != T(0))
             {
                 for (size_t yp = 0; yp < buffer.size(); yp++)
                     if (yp != y)
@@ -208,7 +279,7 @@ T Matrix<T>::determinant() const
     for (size_t i = 0; i < upper.size(); ++i)
         det *= upper[i][i];
 
-    return (swapCount % 2 == 0) ? det : -1 * det;
+    return (swapCount % 2 == 0) ? det : T(-1) * det;
 }
 
 template <typename T>
