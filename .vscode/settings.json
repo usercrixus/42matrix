@@ -45,6 +45,10 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "complex": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "ctime": "cpp",
+        "iomanip": "cpp"
     }
 }

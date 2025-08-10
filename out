@@ -1,1 +1,0 @@
-c++ -c srcs/main.cpp -o srcs/main.o

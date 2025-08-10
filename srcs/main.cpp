@@ -2,20 +2,25 @@
 #include "Matrix/Matrix.hpp"
 #include "iostream"
 #include <complex>
+#include <iomanip>
 
-int main(int argc, char const *argv[])
+int main(void)
 {
 	std::cout << "---- Exercice 00 ----" << std::endl;
 	try
 	{
-		VectorAlgebra<int> vector1 = {0, 1, 2, 3, 4, 5};
-		VectorAlgebra<int> vector2 = {0, 1, 2, 3, 4, 5};
-		VectorAlgebra<int> vector3 = {0, 1, 2, 3, 4};
-		std::cout << vector1 * vector2 << std::endl;
+		VectorAlgebra<int> vector1 = {2, 3};
+		VectorAlgebra<int> vector2 = {5, 7};
 		std::cout << vector1 + vector2 << std::endl;
 		std::cout << vector1 - vector2 << std::endl;
 		std::cout << vector1 * 2 << std::endl;
-		std::cout << vector1 - vector3 << std::endl;
+
+		Matrix<float> m1 = Matrix<float>::from({{1, 2}, {3, 4}});
+		Matrix<float> m2 = Matrix<float>::from({{7, 4}, {-2, 2}});
+		std::cout << m1 + m2 << std::endl;
+		std::cout << m1 - m2 << std::endl;
+		std::cout << m1 * 2 << std::endl;
+		std::cout << 2 * m1 << std::endl;
 	}
 	catch (const std::exception &e)
 	{
@@ -49,7 +54,8 @@ int main(int argc, char const *argv[])
 		std::cout << VectorAlgebra<float>::linearInterpolation({2, 1}, {4, 2}, 0.3) << std::endl;
 		std::cout << Matrix<float>::linearInterpolation(
 						 Matrix<float>::from({{2, 1}, {3, 4}}),
-						 Matrix<float>::from({{20, 10}, {30, 40}}), 0.5)
+						 Matrix<float>::from({{20, 10}, {30, 40}}),
+						 0.5)
 				  << std::endl;
 	}
 	catch (const std::exception &e)
@@ -327,12 +333,24 @@ int main(int argc, char const *argv[])
 	try
 	{
 		std::cout << "---- Exercice 14 ----" << std::endl;
-		float fov = 90.0f;		 // Field of view in degrees
-		float ratio = 16.0f / 9; // Aspect ratio (e.g. 1920 / 1080)
+		float fov = 60.0f;		 // Field of view in degrees
+		float ratio = 12.0f / 9; // Aspect ratio (e.g. 1920 / 1080)
 		float near = 0.1f;		 // The closest distance you can see. 10cm
 		float far = 100.0f;		 // The farthest distance you can see. 100 meters
 		Matrix<float> m1 = Matrix<float>::projection(fov, ratio, near, far);
-		std::cout << m1 << std::endl;
+		for (auto row : m1)
+		{
+			for (size_t i = 0; i < row.size(); i++)
+			{
+				if (std::floor(row[i]) == row[i])
+					std::cout << std::fixed << std::setprecision(1) << row[i];
+				else
+					std::cout << row[i];
+				if (i < row.size() - 1)
+					std::cout << ", ";
+			}
+			std::cout << std::endl;
+		}
 	}
 	catch (const std::exception &e)
 	{
