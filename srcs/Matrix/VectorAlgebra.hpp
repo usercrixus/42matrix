@@ -11,27 +11,134 @@ class VectorAlgebra : public std::vector<T>
 {
 private:
 public:
-	// Use base constructor
+	/**
+	 * @brief Inherit all std::vector constructors.
+	 */
 	using std::vector<T>::vector;
 
+	/**
+	 * @brief Real scalar type used for norms (e.g., float for complex<float>).
+	 */
 	using ScalarType = decltype(std::abs(T{}));
+
+	/**
+	 * @brief Compute the linear combination of multiple vectors.
+	 * @param vects List of vectors.
+	 * @param coef Vector of coefficients (same length as vects).
+	 * @return Sum of coef[i] * vects[i] for all i.
+	 * @throws std::invalid_argument if sizes mismatch or vectors have different lengths.
+	 */
 	static VectorAlgebra<T> linearCombinaison(const std::vector<VectorAlgebra<T>> &vects, const VectorAlgebra<T> &coef);
+
+	/**
+	 * @brief Linearly interpolate between two vectors.
+	 * @param vect1 First vector.
+	 * @param vect2 Second vector.
+	 * @param ratio Interpolation factor in [0, 1].
+	 * @return (1 - ratio) * vect1 + ratio * vect2.
+	 * @throws std::invalid_argument if sizes differ or ratio is outside [0, 1].
+	 */
 	static VectorAlgebra<T> linearInterpolation(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2, float ratio);
+
+	/**
+	 * @brief Compute the cosine of the angle between two real-valued vectors.
+	 * @param vect1 First vector.
+	 * @param vect2 Second vector.
+	 * @return Cosine of the angle in [-1, 1].
+	 * @throws std::logic_error if T is complex.
+	 * @throws std::invalid_argument if one of the vectors has zero length.
+	 */
 	static float angleCos(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2);
+
+	/**
+	 * @brief Compute the 3D cross product.
+	 * @param vect1 First vector (size must be 3).
+	 * @param vect2 Second vector (size must be 3).
+	 * @return Vector perpendicular to both inputs.
+	 * @throws std::invalid_argument if vectors are not 3D.
+	 */
 	static VectorAlgebra<T> crossProduct(const VectorAlgebra<T> &vect1, const VectorAlgebra<T> &vect2);
+
+	/**
+	 * @brief Compute the Manhattan norm (L1 norm).
+	 * @return Sum of absolute values of elements.
+	 */
 	ScalarType normManhattan() const;
+
+	/**
+	 * @brief Compute the Euclidean norm (L2 norm).
+	 * @return sqrt(sum(|x_i|²)).
+	 */
 	ScalarType normEuclidean() const;
+
+	/**
+	 * @brief Compute the supremum norm (L∞ norm).
+	 * @return Maximum absolute value among elements.
+	 */
 	ScalarType normSupremum() const;
 
+	/**
+	 * @brief Compute the sum of all elements.
+	 * @return Sum of elements.
+	 */
 	T sum();
+
+	/**
+	 * @brief Compute the dot product.
+	 * @param other Other vector (same size).
+	 * @return Scalar result; for complex, uses conjugate of this vector.
+	 * @throws std::invalid_argument if sizes differ.
+	 */
 	T dotProduct(const VectorAlgebra<T> &other) const;
 
+	/**
+	 * @brief Element-wise vector addition.
+	 * @param other Other vector (same size).
+	 * @return Sum vector.
+	 * @throws std::invalid_argument if sizes differ.
+	 */
 	VectorAlgebra<T> operator+(const VectorAlgebra<T> &other) const;
+
+	/**
+	 * @brief Element-wise vector subtraction.
+	 * @param other Other vector (same size).
+	 * @return Difference vector.
+	 * @throws std::invalid_argument if sizes differ.
+	 */
 	VectorAlgebra<T> operator-(const VectorAlgebra<T> &other) const;
+
+	/**
+	 * @brief Element-wise vector multiplication (Hadamard product).
+	 * @param other Other vector (same size).
+	 * @return Product vector.
+	 * @throws std::invalid_argument if sizes differ.
+	 */
 	VectorAlgebra<T> operator*(const VectorAlgebra<T> &other) const;
+
+	/**
+	 * @brief Multiply vector by a scalar.
+	 * @tparam Scalar Numeric type.
+	 * @param value Scalar value.
+	 * @return Scaled vector.
+	 */
 	template <typename Scalar>
-	VectorAlgebra<T> operator*(const Scalar) const;
+	VectorAlgebra<T> operator*(const Scalar value) const;
+
+	/**
+	 * @brief Element-wise vector division.
+	 * @param other Other vector (same size).
+	 * @return Quotient vector.
+	 * @throws std::invalid_argument if sizes differ or division by zero occurs.
+	 */
 	VectorAlgebra<T> operator/(const VectorAlgebra<T> &other) const;
+
+	/**
+	 * @brief Divide vector by a scalar.
+	 * @tparam Scalar Numeric type.
+	 * @param value Scalar value (must be nonzero).
+	 * @return Scaled vector.
+	 * @throws std::invalid_argument if value is zero.
+	 */
 	template <typename Scalar>
 	VectorAlgebra<T> operator/(Scalar value) const;
 };
@@ -115,7 +222,7 @@ typename VectorAlgebra<T>::ScalarType VectorAlgebra<T>::normSupremum() const
 	typename VectorAlgebra<T>::ScalarType maxAbs = std::abs((*this)[0]);
 	for (const auto &val : *this)
 	{
-		typename VectorAlgebra<T>::ScalarType  magnitude = std::abs(val);
+		typename VectorAlgebra<T>::ScalarType magnitude = std::abs(val);
 		if (magnitude > maxAbs)
 			maxAbs = magnitude;
 	}

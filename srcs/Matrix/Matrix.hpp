@@ -7,7 +7,16 @@ template <typename T>
 class Matrix : private std::vector<VectorAlgebra<T>>
 {
 private:
+    /**
+     * @brief Check if the matrix is valid.
+     * @return true if all rows have the same number of columns, false otherwise.
+     */
     bool isValidate() const;
+
+    /**
+     * @brief Check if the matrix is square.
+     * @return true if number of rows == number of columns, false otherwise.
+     */
     bool isSquare() const;
 
 public:
@@ -15,24 +24,124 @@ public:
     using std::vector<VectorAlgebra<T>>::begin;
     using std::vector<VectorAlgebra<T>>::end;
 
+    /**
+     * @brief Create a Matrix from a list of rows.
+     * @param rows Vector of VectorAlgebra<T> representing the matrix rows.
+     * @throws std::invalid_argument if rows are not all the same size.
+     */
     static Matrix<T> from(const std::vector<VectorAlgebra<T>> &rows);
+
+    /**
+     * @brief Interpolate between two matrices.
+     * @param m1 First matrix.
+     * @param m2 Second matrix.
+     * @param ratio Interpolation factor in [0, 1].
+     * @return The interpolated matrix.
+     * @throws std::invalid_argument if matrix dimensions differ.
+     */
     static Matrix<T> linearInterpolation(const Matrix<T> &m1, const Matrix<T> &m2, float ratio);
+
+    /**
+     * @brief Create a 4x4 perspective projection matrix.
+     * @param fov Field of view in degrees.
+     * @param ratio Aspect ratio (width / height).
+     * @param near Near clipping plane distance.
+     * @param far Far clipping plane distance.
+     * @return Projection matrix.
+     */
     static Matrix<T> projection(float fov, float ratio, float near, float far);
 
+    /**
+     * @brief Get the transposed version of the matrix.
+     * @return Transposed matrix.
+     */
     Matrix<T> transpose() const;
+
+    /**
+     * @brief Convert matrix to row echelon form (Gauss-Jordan elimination).
+     * @return Row echelon form of the matrix.
+     */
     Matrix<T> rowEchelon() const;
+
+    /**
+     * @brief Row echelon form with pivot normalization and swap count tracking.
+     * @param swapCount Output parameter for number of row swaps performed.
+     * @return Row echelon normalized matrix.
+     */
     Matrix<T> rowEchelonNormalize(int &swapCount) const;
+
+    /**
+     * @brief Compute the inverse of a square matrix.
+     * @return Inverted matrix.
+     * @throws std::logic_error if the matrix is not square or non-invertible.
+     */
     Matrix<T> invert() const;
+
+    /**
+     * @brief Generate an identity matrix of the same size as this matrix.
+     * @return Identity matrix.
+     */
     Matrix<T> getIdentityMatrix() const;
+
+    /**
+     * @brief Compute the rank of the matrix.
+     * @return Rank as an unsigned integer.
+     */
     unsigned int rank() const;
+
+    /**
+     * @brief Compute the determinant of the matrix.
+     * @return Determinant value.
+     * @throws std::invalid_argument if the matrix is not square.
+     */
     T determinant() const;
+
+    /**
+     * @brief Compute the trace of a square matrix (sum of diagonal elements).
+     * @return Trace value.
+     * @throws std::logic_error if the matrix is not square or empty.
+     */
     T trace();
 
+    /**
+     * @brief Multiply this matrix by another matrix.
+     * @param other Matrix to multiply with.
+     * @return Product matrix.
+     * @throws std::invalid_argument if dimensions are incompatible.
+     */
     Matrix<T> operator*(const Matrix<T> &other) const;
+
+    /**
+     * @brief Multiply this matrix by a scalar.
+     * @tparam Scalar Numeric type.
+     * @param scalar Value to multiply with.
+     * @return Scaled matrix.
+     */
     template <typename Scalar>
     Matrix<T> operator*(const Scalar scalar) const;
+
+    /**
+     * @brief Add two matrices element-wise.
+     * @param other Matrix to add.
+     * @return Sum matrix.
+     * @throws std::invalid_argument if dimensions differ.
+     */
     Matrix<T> operator+(const Matrix<T> &other) const;
+
+    /**
+     * @brief Subtract another matrix from this matrix element-wise.
+     * @param other Matrix to subtract.
+     * @return Difference matrix.
+     * @throws std::invalid_argument if dimensions differ.
+     */
     Matrix<T> operator-(const Matrix<T> &other) const;
+
+    /**
+     * @brief Multiply this matrix by a vector.
+     * @param vec Vector to multiply.
+     * @return Resulting vector.
+     * @throws std::invalid_argument if dimensions are incompatible.
+     */
     VectorAlgebra<T> operator*(const VectorAlgebra<T> &vec) const;
 };
 

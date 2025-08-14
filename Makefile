@@ -14,9 +14,11 @@ matrix: $(OBJ)
 	c++ -Wall -Wextra -Werror -Werror -std=c++17 -c $< -o $@
 
 clean:
-	rm -r $(OBJ)
+	rm -fr $(OBJ)
 
 fclean: clean
-	rm matrix
+	rm -f matrix
 
 re: fclean all
+
+.PHONY: clean fclean re
