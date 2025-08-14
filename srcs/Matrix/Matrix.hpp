@@ -29,6 +29,10 @@ public:
     T trace();
 
     Matrix<T> operator*(const Matrix<T> &other) const;
+    template <typename Scalar>
+    Matrix<T> operator*(const Scalar scalar) const;
+    Matrix<T> operator+(const Matrix<T> &other) const;
+    Matrix<T> operator-(const Matrix<T> &other) const;
     VectorAlgebra<T> operator*(const VectorAlgebra<T> &vec) const;
 };
 
@@ -128,7 +132,7 @@ Matrix<T> Matrix<T>::projection(float fov_deg, float aspect_ratio, float near_pl
                                              {0, y_scale, 0, 0},
                                              {0, 0, z_scale, z_translate},
                                              {0, 0, 1, 0}});
-    return perspective.transpose();
+    return perspective;
 }
 
 template <typename T>
@@ -324,6 +328,22 @@ Matrix<T> Matrix<T>::from(const std::vector<VectorAlgebra<T>> &rows)
 }
 
 template <typename T>
+template <typename Scalar>
+Matrix<T> Matrix<T>::operator*(const Scalar scalar) const
+{
+    Matrix<T> result;
+    for (auto row : (*this))
+        result.push_back(row * scalar);
+    return result;
+}
+
+template <typename Scalar, typename T>
+Matrix<T> operator*(Scalar scalar, const Matrix<T> matrix)
+{
+    return matrix * scalar;
+}
+
+template <typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T> &other) const
 {
     if (this->empty() || other.empty() || (*this)[0].size() != other.size())
@@ -344,6 +364,28 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &other) const
         result.push_back(newRow);
     }
 
+    return result;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::operator+(const Matrix<T> &other) const
+{
+    if (this->empty() || (*this).size() != other.size() || (*this)[0].size() != other[0].size())
+        throw std::invalid_argument("Matrix sizes mismatch");
+    Matrix<T> result;
+    for (size_t i = 0; i < (*this).size(); i++)
+        result.push_back((*this)[i] + other[i]);
+    return result;
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::operator-(const Matrix<T> &other) const
+{
+    if (this->empty() || (*this).size() != other.size() || (*this)[0].size() != other[0].size())
+        throw std::invalid_argument("Matrix sizes mismatch");
+    Matrix<T> result;
+    for (size_t i = 0; i < (*this).size(); i++)
+        result.push_back((*this)[i] - other[i]);
     return result;
 }
 
