@@ -12,3 +12,13 @@ tester: $(OBJ)
 
 %.o: %.cpp $(HDR)
 	c++ -c $< -o $@
+
+clean:
+	rm $(OBJ)
+
+fclean: clean
+	rm tester
+
+re: fclean all
+
+.PHONY clean fclean 
